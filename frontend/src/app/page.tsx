@@ -1,5 +1,6 @@
 "use client";
-import { Navbar } from "@/components/Navbar";
+import LatexEditor from "@/components/Editor";
+import Navbar from "@/components/Navbar";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -24,7 +25,14 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-      {test["Hello"]}
+      {/* {test["Hello"]} */}
+      <LatexEditor
+        content={test}
+        onChange={(content) => {
+          setTest(content);
+          toast.success(`Content updated to ${content}`);
+        }}
+      />
     </div>
   );
 }

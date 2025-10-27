@@ -1,17 +1,15 @@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, Save, FileOutput } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface LatexEditorProps {
   content: string;
   onChange: (content: string) => void;
 }
 
-export const LatexEditor = ({ content, onChange }: LatexEditorProps) => {
-  const { toast } = useToast();
-
-  const handleUpload = () => {
+export default function LatexEditor({ content, onChange }: LatexEditorProps) {
+  function handleUpload() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".tex";
@@ -22,18 +20,15 @@ export const LatexEditor = ({ content, onChange }: LatexEditorProps) => {
         reader.onload = (e) => {
           const text = e.target?.result as string;
           onChange(text);
-          toast({
-            title: "File uploaded",
-            description: `${file.name} loaded successfully`,
-          });
+          toast.success(`${file.name} loaded successfully`);
         };
         reader.readAsText(file);
       }
     };
     input.click();
-  };
+  }
 
-  const handleSave = () => {
+  function handleSave() {
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -41,11 +36,8 @@ export const LatexEditor = ({ content, onChange }: LatexEditorProps) => {
     a.download = "cv.tex";
     a.click();
     URL.revokeObjectURL(url);
-    toast({
-      title: "File saved",
-      description: "Your LaTeX file has been downloaded",
-    });
-  };
+    toast.success("Your LaTeX file has been downloaded");
+  }
 
   return (
     <div className="flex-1 flex flex-col bg-editor-bg">
@@ -84,4 +76,4 @@ export const LatexEditor = ({ content, onChange }: LatexEditorProps) => {
       </div>
     </div>
   );
-};
+}

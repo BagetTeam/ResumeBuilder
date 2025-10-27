@@ -1,7 +1,7 @@
 import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export function Navbar() {
+export default function Navbar() {
   return (
     <nav className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
       <div className="flex items-center gap-3">
