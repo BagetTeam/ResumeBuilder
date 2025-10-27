@@ -11,26 +11,35 @@ export default function PdfViewer({ latexContent }: PdfViewerProps) {
 
   return (
     <div className="flex-1 flex flex-col bg-background rounded-2xl h-full overflow-hidden">
-      <div className="p-3 border-b border-border flex gap-2 items-center">
+      <div className="p-3 border-b border-border flex gap-2 items-center justify-between">
+        <div className="flex gap-2 items-center">
+          <Button
+            onClick={() => setZoom(Math.max(50, zoom - 10))}
+            variant="outline"
+            size="sm"
+          >
+            <ZoomOut className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={() => setZoom(Math.min(200, zoom + 10))}
+            variant="outline"
+            size="sm"
+          >
+            <ZoomIn className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-(--editor-text) px-2 text-center">
+            {zoom}%
+          </span>
+        </div>
         <Button
-          onClick={() => setZoom(Math.max(50, zoom - 10))}
           variant="outline"
           size="sm"
+          className="ml-2 border border-border gap-3"
         >
-          <ZoomOut className="h-4 w-4" />
-        </Button>
-        <span className="text-sm text-muted-foreground min-w-[60px] text-center">
-          {zoom}%
-        </span>
-        <Button
-          onClick={() => setZoom(Math.min(200, zoom + 10))}
-          variant="outline"
-          size="sm"
-        >
-          <ZoomIn className="h-4 w-4" />
-        </Button>
-        <Button variant="outline" size="sm" className="ml-2">
           <RefreshCw className="h-4 w-4" />
+          <span className="text-sm text-(--editor-text) text-center">
+            Refresh
+          </span>
         </Button>
       </div>
 
