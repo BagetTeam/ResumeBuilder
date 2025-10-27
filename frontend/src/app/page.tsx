@@ -1,6 +1,7 @@
 "use client";
 import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Home() {
   const [test, setTest] = useState("");
