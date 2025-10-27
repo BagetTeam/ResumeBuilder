@@ -1,4 +1,5 @@
 "use client";
+import { Navbar } from "@/components/Navbar";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -19,5 +20,10 @@ export default function Home() {
     }
     fetchData();
   }, []);
-  return <div>{test["Hello"]}</div>;
+  return (
+    <div>
+      <Navbar />
+      {test["Hello"]}
+    </div>
+  );
 }
