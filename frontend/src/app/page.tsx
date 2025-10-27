@@ -1,6 +1,7 @@
 "use client";
 import LatexEditor from "@/components/Editor";
 import Navbar from "@/components/Navbar";
+import PdfViewer from "@/components/PdfViewer";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -15,7 +16,7 @@ export default function Home() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setTest(data);
+        setTest(data["Hello"]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -23,16 +24,19 @@ export default function Home() {
     fetchData();
   }, []);
   return (
-    <div>
+    <div className="h-full">
       <Navbar />
       {/* {test["Hello"]} */}
-      <LatexEditor
-        content={test}
-        onChange={(content) => {
-          setTest(content);
-          toast.success(`Content updated to ${content}`);
-        }}
-      />
+      <div className="flex flex-1 flex-row gap-4 bg-blue-900 p-5 min-h-full">
+        <LatexEditor
+          content={test}
+          onChange={(content) => {
+            setTest(content);
+            // toast.success(`Content updated to ${content}`);
+          }}
+        />
+        <PdfViewer latexContent={test} />
+      </div>
     </div>
   );
 }
