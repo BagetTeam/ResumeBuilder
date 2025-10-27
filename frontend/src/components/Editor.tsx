@@ -40,8 +40,8 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-(--editor-bg) rounded-2xl min-h-full">
-      <div className="p-3 border-b border-border flex gap-2">
+    <div className="flex-1 flex flex-col bg-(--editor-bg) rounded-2xl h-full overflow-hidden">
+      <div className="p-3 border-b border-border flex gap-2 shrink-0">
         <Button
           onClick={handleUpload}
           variant="outline"
@@ -70,7 +70,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
         <Textarea
           value={content}
           onChange={(e) => onChange(e.target.value)}
-          className="min-h-full font-mono text-sm resize-none border-0 focus-visible:ring-0 bg-editor-bg text-(--editor-text) whitespace-pre-wrap break-normal"
+          className="w-full h-full font-mono text-sm resize-none border-0 focus-visible:ring-0 bg-(--editor-bg) text-(--editor-text) whitespace-pre-wrap break-normal"
           placeholder="Enter your LaTeX code here..."
         />
       </div>

@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
-    <nav className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
+    <nav className="h-16 bg-(--bg-secondary) flex items-center justify-between px-6">
       <div className="flex items-center gap-3">
-        <FileText className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-semibold text-foreground">CV Tailor</h1>
+        <FileText className="h-6 w-6 text-muted" />
+        <h1 className="text-xl font-semibold text-muted">CV Tailor</h1>
       </div>
 
       <div className="flex items-center gap-6">
@@ -31,8 +31,8 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-          <span className="text-sm font-medium text-primary-foreground">U</span>
+        <div className="h-8 w-8 rounded-full bg-(--bg-foreground) flex items-center justify-center">
+          <span className="text-sm font-medium text-muted">U</span>
         </div>
       </div>
     </nav>

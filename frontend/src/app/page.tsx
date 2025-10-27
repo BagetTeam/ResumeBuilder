@@ -24,10 +24,10 @@ export default function Home() {
     fetchData();
   }, []);
   return (
-    <div className="h-full">
+    <div className="h-screen">
       <Navbar />
       {/* {test["Hello"]} */}
-      <div className="flex flex-1 flex-row gap-4 bg-blue-900 p-5 min-h-full">
+      <div className="flex flex-1 flex-row gap-4 bg-(--bg-primary) p-5 overflow-hidden h-full">
         <LatexEditor
           content={test}
           onChange={(content) => {
