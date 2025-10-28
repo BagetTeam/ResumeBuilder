@@ -1,7 +1,10 @@
+"use client";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, Save, FileOutput } from "lucide-react";
 import { toast } from "sonner";
+import React, { useState } from "react";
 
 interface LatexEditorProps {
   content: string;
@@ -9,6 +12,25 @@ interface LatexEditorProps {
 }
 
 export default function LatexEditor({ content, onChange }: LatexEditorProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
+  function handleFocus() {
+    setIsFocused(true);
+  }
+
+  function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
+    // Moved to outside root div
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsFocused(false);
+    }
+  }
+
+  function autoSave() {
+    if (isFocused) {
+      onChange(content);
+    }
+  }
+
   function handleUpload() {
     const input = document.createElement("input");
     input.type = "file";
@@ -72,6 +94,8 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
           onChange={(e) => onChange(e.target.value)}
           className="w-full h-full font-mono text-sm resize-none border-0 focus-visible:ring-0 bg-(--editor-bg) text-(--editor-text) whitespace-pre-wrap break-normal"
           placeholder="Enter your LaTeX code here..."
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
       </div>
     </div>

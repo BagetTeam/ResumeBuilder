@@ -14,3 +14,16 @@ app.add_middleware(
 @app.get("/test")
 def read_root():
     return {"Hello": "World"}
+
+
+cached_resume: str = ""
+@app.get("/resume")
+def get_resume():
+    global cached_resume
+    return cached_resume
+
+@app.post("/resume")
+def set_resume(resume: str):
+    global cached_resume
+    cached_resume = resume
+    return {"success": True}
