@@ -11,12 +11,12 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch("http://localhost:8000/test");
+        const response = await fetch("http://localhost:8000/resume");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setTest(data["Hello"]);
+        setTest(data["resume"]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }

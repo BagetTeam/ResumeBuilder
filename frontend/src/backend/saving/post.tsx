@@ -1,13 +1,13 @@
 import { API_URL } from "@/consts";
 
-async function postTextContent(str: string) {
+export async function postTextContent(str: string) {
   try {
     const response = await fetch(`${API_URL}/resume`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(str),
+      body: JSON.stringify({ resume: str }),
     });
     if (!response.ok) {
       throw new Error("Failed to save resume");

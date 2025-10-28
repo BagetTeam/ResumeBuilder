@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Save, FileOutput } from "lucide-react";
 import { toast } from "sonner";
 import React, { useState } from "react";
+import { postTextContent } from "@/backend/saving/post";
 
 interface LatexEditorProps {
   content: string;
@@ -25,10 +26,9 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
     }
   }
 
-  function autoSave() {
-    if (isFocused) {
-      onChange(content);
-    }
+  async function handleResumeSave() {
+    const data = await postTextContent(content);
+    toast.success("Your LaTeX file has been saved");
   }
 
   function handleUpload() {
@@ -50,7 +50,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
     input.click();
   }
 
-  function handleSave() {
+  function handleFileSave() {
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -74,7 +74,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
           Upload .tex
         </Button>
         <Button
-          onClick={handleSave}
+          onClick={handleFileSave}
           variant="outline"
           size="sm"
           className="gap-2"
@@ -86,6 +86,12 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
           <FileOutput className="h-4 w-4" />
           Generate PDF
         </Button>
+        <Button
+          onClick={handleResumeSave}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        ></Button>
       </div>
 
       <div className="flex-1 overflow-auto p-4">

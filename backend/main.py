@@ -1,6 +1,8 @@
 import fastapi
 from fastapi.middleware.cors import CORSMiddleware
 
+from data_model import ResumeData
+
 app = fastapi.FastAPI()
 
 app.add_middleware(
@@ -20,10 +22,10 @@ cached_resume: str = ""
 @app.get("/resume")
 def get_resume():
     global cached_resume
-    return cached_resume
+    return {"resume": cached_resume}
 
 @app.post("/resume")
-def set_resume(resume: str):
+def set_resume(resume: ResumeData):
     global cached_resume
-    cached_resume = resume
+    cached_resume = resume.resume
     return {"success": True}
