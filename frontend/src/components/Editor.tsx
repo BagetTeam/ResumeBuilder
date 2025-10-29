@@ -19,7 +19,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
 
   async function handleResumeSave(resume: string) {
     const data = await postTextContent(resume);
-    // toast.success("Your LaTeX file has been saved");
+    toast.success("Your LaTeX file has been saved");
   }
 
   async function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
@@ -36,22 +36,6 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
       }
     }
   }
-
-  const contentRef = useRef(content);
-  useEffect(() => {
-    contentRef.current = content;
-  }, [content]);
-
-  useEffect(() => {
-    function handleBeforeUnload(event: BeforeUnloadEvent) {
-      try {
-        handleResumeSave(contentRef.current);
-      } catch (error) {
-        console.error("Error saving resume:", error);
-      }
-    }
-    window.addEventListener("beforeunload", handleBeforeUnload);
-  }, []);
 
   function handleUpload() {
     const input = document.createElement("input");

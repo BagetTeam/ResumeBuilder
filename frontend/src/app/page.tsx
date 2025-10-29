@@ -17,6 +17,7 @@ export default function Home() {
             : "";
         if (localData && localData !== "") {
           setResumeContent(localData);
+          console.log("Loaded local data");
           return;
         }
         // if no local data, fetch from server
