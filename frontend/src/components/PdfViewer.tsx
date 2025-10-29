@@ -1,4 +1,4 @@
-import { ZoomIn, ZoomOut, RefreshCw } from "lucide-react";
+import { ZoomIn, ZoomOut, RefreshCw, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -31,16 +31,23 @@ export default function PdfViewer({ latexContent }: PdfViewerProps) {
             {zoom}%
           </span>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="ml-2 border border-border gap-3"
-        >
-          <RefreshCw className="h-4 w-4" />
-          <span className="text-sm text-(--editor-text) text-center">
-            Refresh
-          </span>
-        </Button>
+
+        <div className="flex gap-2 items-center">
+          <Button variant="default" size="sm" className="gap-2">
+            <FileOutput className="h-4 w-4" />
+            Generate PDF
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-2 border border-border gap-3"
+          >
+            <RefreshCw className="h-4 w-4" />
+            <span className="text-sm text-(--editor-text) text-center">
+              Refresh
+            </span>
+          </Button>
+        </div>
       </div>
 
       <div className="text-editor-text mb-5 h-full overflow-auto">

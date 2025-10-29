@@ -2,7 +2,7 @@
 
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload, Save, FileOutput } from "lucide-react";
+import { Upload, Save, FileOutput, Download } from "lucide-react";
 import { toast } from "sonner";
 import React, { useEffect, useRef, useState } from "react";
 import { postTextContent } from "@/backend/saving/post";
@@ -17,7 +17,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
 
   function handleFocus() {}
 
-  async function handleResumeSave(resume: string) {
+  async function handleSave(resume: string) {
     const data = await postTextContent(resume);
     // toast.success("Your LaTeX file has been saved");
   }
@@ -27,7 +27,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
     if (!e.currentTarget.contains(e.relatedTarget) && !isSaving) {
       setIsSaving(true);
       try {
-        await handleResumeSave(content);
+        await handleSave(content);
       } catch (error) {
         console.error("Error saving resume:", error);
       } finally {
@@ -55,7 +55,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
     input.click();
   }
 
-  function handleFileSave() {
+  function handleLatexDownload() {
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -79,8 +79,17 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
           Upload .tex
         </Button>
         <Button
+          onClick={handleLatexDownload}
+          variant="outline"
+          size="sm"
+          className="gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Download .tex
+        </Button>
+        <Button
           onClick={async () => {
-            await handleResumeSave(content);
+            await handleSave(content);
           }}
           variant="outline"
           size="sm"
@@ -88,10 +97,6 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
         >
           <Save className="h-4 w-4" />
           Save
-        </Button>
-        <Button variant="default" size="sm" className="gap-2">
-          <FileOutput className="h-4 w-4" />
-          Generate PDF
         </Button>
       </div>
 
