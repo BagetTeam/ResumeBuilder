@@ -56,8 +56,6 @@ def compile_latex(latex_content: str):
     finally:
         if tmp_tex_path is not None and os.path.exists(tmp_tex_path):
             os.unlink(tmp_tex_path)
-    
-    return pdf
 
 @app.post("/pdf-download")
 def get_pdf_download(resume: ResumeData):

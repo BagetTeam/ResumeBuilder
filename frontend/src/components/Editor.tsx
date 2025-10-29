@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Save, FileOutput, Download } from "lucide-react";
 import { toast } from "sonner";
 import React, { useEffect, useRef, useState } from "react";
-import { postTextContent } from "@/backend/saving/post";
+import { postTextContent } from "@/backend/server_posts/post";
 
 interface LatexEditorProps {
   content: string;
