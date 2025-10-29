@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, Save, FileOutput } from "lucide-react";
 import { toast } from "sonner";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { postTextContent } from "@/backend/saving/post";
 
 interface LatexEditorProps {
@@ -13,23 +13,45 @@ interface LatexEditorProps {
 }
 
 export default function LatexEditor({ content, onChange }: LatexEditorProps) {
-  const [isFocused, setIsFocused] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  function handleFocus() {
-    setIsFocused(true);
+  function handleFocus() {}
+
+  async function handleResumeSave(resume: string) {
+    const data = await postTextContent(resume);
+    // toast.success("Your LaTeX file has been saved");
   }
 
-  function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
+  async function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
     // Moved to outside root div
-    if (!e.currentTarget.contains(e.relatedTarget)) {
-      setIsFocused(false);
+    if (!e.currentTarget.contains(e.relatedTarget) && !isSaving) {
+      setIsSaving(true);
+      try {
+        await handleResumeSave(content);
+        toast.success("Your LaTeX file has been saved");
+      } catch (error) {
+        console.error("Error saving resume:", error);
+      } finally {
+        setIsSaving(false);
+      }
     }
   }
 
-  async function handleResumeSave() {
-    const data = await postTextContent(content);
-    toast.success("Your LaTeX file has been saved");
-  }
+  const contentRef = useRef(content);
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
+  useEffect(() => {
+    function handleBeforeUnload(event: BeforeUnloadEvent) {
+      try {
+        handleResumeSave(contentRef.current);
+      } catch (error) {
+        console.error("Error saving resume:", error);
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+  }, []);
 
   function handleUpload() {
     const input = document.createElement("input");
@@ -86,12 +108,6 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
           <FileOutput className="h-4 w-4" />
           Generate PDF
         </Button>
-        <Button
-          onClick={handleResumeSave}
-          variant="outline"
-          size="sm"
-          className="gap-2"
-        ></Button>
       </div>
 
       <div className="flex-1 overflow-auto p-4">

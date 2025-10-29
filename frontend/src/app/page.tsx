@@ -6,36 +6,50 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
-  const [test, setTest] = useState("");
+  const [resumeContent, setResumeContent] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       try {
+        const localData =
+          typeof window !== "undefined"
+            ? localStorage.getItem("resumeContent")
+            : "";
+        if (localData && localData !== "") {
+          setResumeContent(localData);
+          return;
+        }
+        // if no local data, fetch from server
         const response = await fetch("http://localhost:8000/resume");
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setTest(data["resume"]);
+        setResumeContent(data["resume"]);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("resumeContent", resumeContent);
+  }, [resumeContent]);
+
   return (
     <div className="h-screen">
       <Navbar />
       {/* {test["Hello"]} */}
       <div className="flex flex-1 flex-row gap-4 bg-(--bg-primary) p-5 overflow-hidden h-full">
         <LatexEditor
-          content={test}
+          content={resumeContent}
           onChange={(content) => {
-            setTest(content);
+            setResumeContent(content);
             // toast.success(`Content updated to ${content}`);
           }}
         />
-        <PdfViewer latexContent={test} />
+        <PdfViewer latexContent={resumeContent} />
       </div>
     </div>
   );
