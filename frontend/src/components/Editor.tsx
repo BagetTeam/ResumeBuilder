@@ -19,7 +19,7 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
 
   async function handleResumeSave(resume: string) {
     const data = await postTextContent(resume);
-    toast.success("Your LaTeX file has been saved");
+    // toast.success("Your LaTeX file has been saved");
   }
 
   async function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
@@ -28,7 +28,6 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
       setIsSaving(true);
       try {
         await handleResumeSave(content);
-        toast.success("Your LaTeX file has been saved");
       } catch (error) {
         console.error("Error saving resume:", error);
       } finally {
@@ -80,7 +79,9 @@ export default function LatexEditor({ content, onChange }: LatexEditorProps) {
           Upload .tex
         </Button>
         <Button
-          onClick={handleFileSave}
+          onClick={async () => {
+            await handleResumeSave(content);
+          }}
           variant="outline"
           size="sm"
           className="gap-2"

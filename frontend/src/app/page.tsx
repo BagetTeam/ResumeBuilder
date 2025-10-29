@@ -17,7 +17,7 @@ export default function Home() {
             : "";
         if (localData && localData !== "") {
           setResumeContent(localData);
-          console.log("Loaded local data");
+          // console.log("Loaded local data");
           return;
         }
         // if no local data, fetch from server
@@ -41,13 +41,11 @@ export default function Home() {
   return (
     <div className="h-screen">
       <Navbar />
-      {/* {test["Hello"]} */}
       <div className="flex flex-1 flex-row gap-4 bg-(--bg-primary) p-5 overflow-hidden h-full">
         <LatexEditor
           content={resumeContent}
           onChange={(content) => {
             setResumeContent(content);
-            // toast.success(`Content updated to ${content}`);
           }}
         />
         <PdfViewer latexContent={resumeContent} />
