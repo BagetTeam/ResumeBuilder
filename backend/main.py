@@ -70,6 +70,7 @@ def get_pdf_display(resume: ResumeData):
     try:
         pdf = compile_latex(resume.resume)
         pdf_base64 = base64.b64encode(pdf).decode("utf-8")
+        print(pdf_base64)
         return {"pdf": pdf_base64}
     except Exception as e:
         raise fastapi.HTTPException(status_code=500, detail=str(e))

@@ -1,4 +1,5 @@
 "use client";
+import { getPDFDisplay } from "@/backend/server_posts/post";
 import LatexEditor from "@/components/Editor";
 import Navbar from "@/components/Navbar";
 import PdfViewer from "@/components/PdfViewer";
@@ -7,6 +8,8 @@ import { toast } from "sonner";
 
 export default function Home() {
   const [resumeContent, setResumeContent] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -35,6 +38,28 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    async function loadPDF() {
+      try {
+        console.log("Loading PDF: " + resumeContent);
+        const data = await getPDFDisplay(resumeContent);
+        if (data?.pdf) {
+          // Convert base64 to data URL
+          const dataUrl = `data:application/pdf;base64,${data.pdf}`;
+          toast.success("PDF loaded successfully: " + dataUrl);
+          setPdfUrl(dataUrl);
+        }
+      } catch (e) {
+        console.error(e);
+        toast.error("Failed to load PDF");
+      } finally {
+        setPdfLoading(false);
+      }
+    }
+
+    loadPDF();
+  }, [resumeContent]);
+
+  useEffect(() => {
     localStorage.setItem("resumeContent", resumeContent);
   }, [resumeContent]);
 
@@ -48,7 +73,7 @@ export default function Home() {
             setResumeContent(content);
           }}
         />
-        <PdfViewer latexContent={resumeContent} />
+        <PdfViewer pdfUrl={pdfUrl} isLoading={pdfLoading} />
       </div>
     </div>
   );

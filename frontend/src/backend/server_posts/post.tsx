@@ -48,7 +48,7 @@ export async function getPDFDisplay(str: string) {
       body: JSON.stringify({ resume: str }),
     });
     if (!response.ok) {
-      throw new Error("Failed to save resume");
+      throw new Error("Failed to get resume");
     }
     const data = await response.json();
     return data;

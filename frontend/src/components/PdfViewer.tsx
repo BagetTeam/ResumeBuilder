@@ -1,12 +1,14 @@
 import { ZoomIn, ZoomOut, RefreshCw, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { Spinner } from "@radix-ui/themes";
 
 interface PdfViewerProps {
-  latexContent: string;
+  pdfUrl: string;
+  isLoading: boolean;
 }
 
-export default function PdfViewer({ latexContent }: PdfViewerProps) {
+export default function PdfViewer({ pdfUrl, isLoading }: PdfViewerProps) {
   const [zoom, setZoom] = useState(100);
 
   return (
@@ -61,9 +63,17 @@ export default function PdfViewer({ latexContent }: PdfViewerProps) {
               transformOrigin: "top center",
             }}
           >
-            <p className="font-mono text-xs whitespace-pre-wrap break-all h-full">
-              {latexContent.substring(0, 300)}...
-            </p>
+            {isLoading ? (
+              <Spinner />
+            ) : pdfUrl && pdfUrl !== "" ? (
+              <iframe
+                src={pdfUrl}
+                style={{ width: "100%", height: "100%", border: "none" }}
+                title="PDF Preview"
+              />
+            ) : (
+              <>Invalid PDF</>
+            )}
           </div>
         </div>
       </div>
