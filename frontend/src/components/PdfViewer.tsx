@@ -54,27 +54,23 @@ export default function PdfViewer({ pdfUrl, isLoading }: PdfViewerProps) {
 
       <div className="text-editor-text mb-5 h-full overflow-auto">
         <div className="flex-1 overflow-hidden p-8 flex items-start justify-center">
-          <div
-            className="bg-(--editor-bg) shadow-(--shadow-pdf) rounded-sm"
-            style={{
-              width: `${(595 * zoom) / 100}px`,
-              minHeight: `${(842 * zoom) / 100}px`,
-              transform: `scale(${zoom / 100})`,
-              transformOrigin: "top center",
-            }}
-          >
-            {isLoading ? (
-              <Spinner />
-            ) : pdfUrl && pdfUrl !== "" ? (
-              <iframe
-                src={pdfUrl}
-                style={{ width: "100%", height: "100%", border: "none" }}
-                title="PDF Preview"
-              />
-            ) : (
-              <>Invalid PDF</>
-            )}
-          </div>
+          {isLoading ? (
+            <Spinner />
+          ) : pdfUrl && pdfUrl !== "" ? (
+            <iframe
+              src={pdfUrl}
+              className="bg-(--editor-bg) shadow-(--shadow-pdf) rounded-sm"
+              style={{
+                width: `${(595 * zoom) / 100}px`,
+                minHeight: `${(842 * zoom) / 100}px`,
+                transform: `scale(${zoom / 100})`,
+                transformOrigin: "top center",
+              }}
+              title="PDF Preview"
+            />
+          ) : (
+            <>Invalid PDF</>
+          )}
         </div>
       </div>
     </div>
