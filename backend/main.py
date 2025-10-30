@@ -1,11 +1,14 @@
 import base64
 import os
+import subprocess
 import fastapi
 from fastapi.middleware.cors import CORSMiddleware
 import tempfile
 from pdflatex import PDFLaTeX
 
 from data_model import ResumeData
+
+# subprocess.run(["pdflatex", "--version"])
 
 app = fastapi.FastAPI()
 
@@ -34,28 +37,54 @@ def set_resume(resume: ResumeData):
     cached_resume = resume.resume
     return {"success": True}
 
-def compile_latex(latex_content: str):
+def compile_latex(latex_content: str) -> bytes:
     """ Compile the LaTeX content to PDF """
-    tmp_tex_path = None
-    try:
-        with tempfile.NamedTemporaryFile(suffix=".tex", delete=False, mode="w") as tmp_file:
-            tmp_tex_path = tmp_file.name
-            tmp_file.write(latex_content)
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tex_file = "resume.tex"
+        pdf_file = "resume.pdf"
+        tex_path = os.path.join(tmp_dir, tex_file)
+        pdf_path = os.path.join(tmp_dir, pdf_file)
 
-        pdfl = PDFLaTeX.from_texfile(tmp_tex_path)
-        pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=False, keep_log_file=False)
-        return pdf
+        with open(tex_path, "w", encoding="utf-8") as f:
+            f.write(latex_content)
 
-            # tmp_file.write(latex_content.encode("utf-8"))
-            # tmp_file.flush()
-            # subprocess.run(["pdflatex", tmp_file.name], check=True)
-            # with open(tmp_file.name.replace(".tex", ".pdf"), "rb") as f:
-            #     pdf_content = f.read()
-    except Exception as e:
-        raise Exception("PDF compilation failed: " + str(e))
-    finally:
-        if tmp_tex_path is not None and os.path.exists(tmp_tex_path):
-            os.unlink(tmp_tex_path)
+        print(f"Compiling LaTeX file: {tex_path}")
+        # Pass only the filename, cwd avoids spaces
+        process = subprocess.run(
+            ["pdflatex", "-interaction=nonstopmode", tex_file],
+            cwd=tmp_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+
+        if not os.path.exists(pdf_path):
+            log = process.stdout.decode("utf-8") + "\n" + process.stderr.decode("utf-8")
+            raise Exception(f"LaTeX compilation failed:\n{log}")
+        
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+
+        return pdf_bytes
+    
+    # tmp_tex_path = None
+    # try:
+    #     with tempfile.NamedTemporaryFile(suffix=".tex", delete=False, mode="w", encoding="utf-8") as tmp_file:
+    #         tmp_tex_path = tmp_file.name
+    #         tmp_file.write(latex_content)
+
+    #     print(f"Compiling LaTeX file: {tmp_tex_path}")
+    #     pdfl = PDFLaTeX.from_texfile(tmp_tex_path)
+    #     pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=False, keep_log_file=True)
+    #     print("PDFLaTeX log output:")
+    #     print(log.decode("utf-8"))
+    #     return pdf
+    # except Exception as e:
+    #     print("LaTeX compilation failed:")
+    #     print(e)
+    #     raise Exception("PDF compilation failed: " + str(e))
+    # finally:
+    #     if tmp_tex_path is not None and os.path.exists(tmp_tex_path):
+    #         os.unlink(tmp_tex_path)
 
 @app.post("/pdf-download")
 def get_pdf_download(resume: ResumeData):
@@ -63,6 +92,8 @@ def get_pdf_download(resume: ResumeData):
         pdf = compile_latex(resume.resume)
         return fastapi.responses.Response(content=pdf, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=resume.pdf"})
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise fastapi.HTTPException(status_code=500, detail=str(e))
     
 @app.post("/pdf-display")
@@ -73,4 +104,7 @@ def get_pdf_display(resume: ResumeData):
         print(pdf_base64)
         return {"pdf": pdf_base64}
     except Exception as e:
+        import traceback
+        print("===== ERROR IN /pdf-display =====")
+        traceback.print_exc()
         raise fastapi.HTTPException(status_code=500, detail=str(e))
