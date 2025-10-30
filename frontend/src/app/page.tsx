@@ -72,7 +72,11 @@ export default function Home() {
             setResumeContent(content);
           }}
         />
-        <PdfViewer pdfUrl={pdfUrl} isLoading={pdfLoading} />
+        <PdfViewer
+          pdfUrl={pdfUrl}
+          isLoading={pdfLoading}
+          setIsLoading={setPdfLoading}
+        />
       </div>
     </div>
   );

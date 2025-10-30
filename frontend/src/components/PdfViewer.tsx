@@ -1,15 +1,63 @@
+"use client";
+
 import { ZoomIn, ZoomOut, RefreshCw, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Spinner } from "@radix-ui/themes";
+import * as pdfjsLib from "pdfjs-dist";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PdfViewerProps {
   pdfUrl: string;
   isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function PdfViewer({ pdfUrl, isLoading }: PdfViewerProps) {
+export default function PdfViewer({
+  pdfUrl,
+  isLoading,
+  setIsLoading,
+}: PdfViewerProps) {
   const [zoom, setZoom] = useState(100);
+
+  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!pdfUrl) return;
+
+    async function loadPdf() {
+      setIsLoading(true);
+      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+
+      if (pdfContainerRef.current) {
+        pdfContainerRef.current.innerHTML = "";
+      }
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: zoom / 100 });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d")!;
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: context,
+          canvas,
+          viewport,
+        };
+        await page.render(renderContext).promise;
+
+        pdfContainerRef.current?.appendChild(canvas);
+      }
+
+      setIsLoading(false);
+    }
+
+    loadPdf();
+  }, [pdfUrl, zoom]);
 
   return (
     <div className="flex-1 flex flex-col bg-background rounded-2xl h-full overflow-hidden">
@@ -57,16 +105,13 @@ export default function PdfViewer({ pdfUrl, isLoading }: PdfViewerProps) {
           {isLoading ? (
             <Spinner />
           ) : pdfUrl && pdfUrl !== "" ? (
-            <iframe
-              src={pdfUrl}
+            <div
+              ref={pdfContainerRef}
               className="bg-(--editor-bg) shadow-(--shadow-pdf) rounded-sm"
               style={{
-                width: `${(595 * zoom) / 100}px`,
-                minHeight: `${(842 * zoom) / 100}px`,
                 transform: `scale(${zoom / 100})`,
                 transformOrigin: "top center",
               }}
-              title="PDF Preview"
             />
           ) : (
             <>Invalid PDF</>
