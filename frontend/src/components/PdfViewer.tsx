@@ -1,9 +1,24 @@
-"use client";
-
-import { ZoomIn, ZoomOut, RefreshCw, FileOutput } from "lucide-react";
+import {
+  ZoomIn,
+  ZoomOut,
+  RefreshCw,
+  FileOutput,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Spinner } from "@radix-ui/themes";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+//   "pdfjs-dist/build/pdf.worker.min.mjs",
+//   import.meta.url
+// ).toString();
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PdfViewerProps {
   pdfUrl: string;
@@ -17,54 +32,14 @@ export default function PdfViewer({
   setIsLoading,
 }: PdfViewerProps) {
   const [zoom, setZoom] = useState(100);
+  const [numPages, setNumPages] = useState<number | null>(null);
+  const [pageNumber, setPageNumber] = useState<number>(1);
 
-  const pdfContainerRef = useRef<HTMLDivElement | null>(null);
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
+    setNumPages(numPages);
+  }
 
-  useEffect(() => {
-    if (!pdfUrl || typeof window === "undefined") return;
-
-    let cancelled = false;
-
-    async function loadPdf() {
-      setIsLoading(true);
-
-      const pdfjsLib = await import("pdfjs-dist/build/pdf");
-      const pdfjsWorker = await import("pdfjs-dist/build/pdf.worker.mjs");
-
-      pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(
-        new Blob([`import("${pdfjsWorker.default}")`], {
-          type: "application/javascript",
-        })
-      );
-
-      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-
-      if (cancelled || !pdfContainerRef.current) return;
-      pdfContainerRef.current.innerHTML = "";
-
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: zoom / 100 });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d")!;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({ canvasContext: context, viewport }).promise;
-        pdfContainerRef.current.appendChild(canvas);
-      }
-
-      if (!cancelled) setIsLoading(false);
-    }
-
-    loadPdf();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [pdfUrl, zoom]);
-
+  const baseWidth = 595; // A4 width in pixels at 72 DPI
   return (
     <div className="flex-1 flex flex-col bg-background rounded-2xl h-full overflow-hidden">
       <div className="p-3 border-b border-border flex gap-2 items-center justify-between">
@@ -89,6 +64,31 @@ export default function PdfViewer({
         </div>
 
         <div className="flex gap-2 items-center">
+          {numPages && numPages > 1 && (
+            <div className="flex gap-2 items-center">
+              <Button
+                onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
+                variant="outline"
+                size="sm"
+                disabled={pageNumber <= 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-(--editor-text) px-2">
+                Page {pageNumber} of {numPages}
+              </span>
+              <Button
+                onClick={() =>
+                  setPageNumber(Math.min(numPages, pageNumber + 1))
+                }
+                variant="outline"
+                size="sm"
+                disabled={pageNumber >= numPages}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
           <Button variant="default" size="sm" className="gap-2">
             <FileOutput className="h-4 w-4" />
             Generate PDF
@@ -111,14 +111,23 @@ export default function PdfViewer({
           {isLoading ? (
             <Spinner />
           ) : pdfUrl && pdfUrl !== "" ? (
-            <div
-              ref={pdfContainerRef}
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              loading={<Spinner />}
               className="bg-(--editor-bg) shadow-(--shadow-pdf) rounded-sm"
-              style={{
-                transform: `scale(${zoom / 100})`,
-                transformOrigin: "top center",
-              }}
-            />
+              scale={zoom / 100}
+            >
+              {Array.from(new Array(numPages), (_, index) => (
+                <Page
+                  key={`page_${index + 1}`}
+                  pageNumber={index + 1}
+                  width={(baseWidth * zoom) / 100}
+                  renderTextLayer={true}
+                  renderAnnotationLayer={true}
+                />
+              ))}
+            </Document>
           ) : (
             <>Invalid PDF</>
           )}
@@ -127,3 +136,11 @@ export default function PdfViewer({
     </div>
   );
 }
+
+// className="bg-(--editor-bg) shadow-(--shadow-pdf) rounded-sm"
+//               style={{
+//                 width: `${(595 * zoom) / 100}px`,
+//                 minHeight: `${(842 * zoom) / 100}px`,
+//                 transform: `scale(${zoom / 100})`,
+//                 transformOrigin: "top center",
+//               }}
