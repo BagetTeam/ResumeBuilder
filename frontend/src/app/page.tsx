@@ -45,7 +45,6 @@ export default function Home() {
         if (data?.pdf) {
           // Convert base64 to data URL
           const dataUrl = `data:application/pdf;base64,${data.pdf}`;
-          toast.success("PDF loaded successfully: " + dataUrl);
           setPdfUrl(dataUrl);
         }
       } catch (e) {
