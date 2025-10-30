@@ -4,9 +4,6 @@ import { ZoomIn, ZoomOut, RefreshCw, FileOutput } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { Spinner } from "@radix-ui/themes";
-import * as pdfjsLib from "pdfjs-dist";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface PdfViewerProps {
   pdfUrl: string;
@@ -24,15 +21,26 @@ export default function PdfViewer({
   const pdfContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!pdfUrl) return;
+    if (!pdfUrl || typeof window === "undefined") return;
+
+    let cancelled = false;
 
     async function loadPdf() {
       setIsLoading(true);
+
+      const pdfjsLib = await import("pdfjs-dist/build/pdf");
+      const pdfjsWorker = await import("pdfjs-dist/build/pdf.worker.mjs");
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(
+        new Blob([`import("${pdfjsWorker.default}")`], {
+          type: "application/javascript",
+        })
+      );
+
       const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
 
-      if (pdfContainerRef.current) {
-        pdfContainerRef.current.innerHTML = "";
-      }
+      if (cancelled || !pdfContainerRef.current) return;
+      pdfContainerRef.current.innerHTML = "";
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         const page = await pdf.getPage(pageNum);
@@ -40,23 +48,21 @@ export default function PdfViewer({
 
         const canvas = document.createElement("canvas");
         const context = canvas.getContext("2d")!;
-        canvas.height = viewport.height;
         canvas.width = viewport.width;
+        canvas.height = viewport.height;
 
-        const renderContext = {
-          canvasContext: context,
-          canvas,
-          viewport,
-        };
-        await page.render(renderContext).promise;
-
-        pdfContainerRef.current?.appendChild(canvas);
+        await page.render({ canvasContext: context, viewport }).promise;
+        pdfContainerRef.current.appendChild(canvas);
       }
 
-      setIsLoading(false);
+      if (!cancelled) setIsLoading(false);
     }
 
     loadPdf();
+
+    return () => {
+      cancelled = true;
+    };
   }, [pdfUrl, zoom]);
 
   return (
