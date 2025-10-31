@@ -4,34 +4,72 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload, Save, FileOutput, Download } from "lucide-react";
 import { toast } from "sonner";
-import React, { useEffect, useRef, useState } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { postTextContent } from "@/backend/server_posts/post";
 
 interface LatexEditorProps {
   content: string;
   onChange: (content: string) => void;
+  onRefresh: Dispatch<SetStateAction<string>>;
 }
 
-export default function LatexEditor({ content, onChange }: LatexEditorProps) {
+export default function LatexEditor({
+  content,
+  onChange,
+  onRefresh,
+}: LatexEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  function handleFocus() {}
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
 
   async function handleSave(resume: string) {
     const data = await postTextContent(resume);
-    // toast.success("Your LaTeX file has been saved");
+    onRefresh(resume);
+  }
+
+  function handleFocus() {
+    // add auto-save interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(() => {
+      handleSave(content);
+    }, 1000);
   }
 
   async function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
     // Moved to outside root div
-    if (!e.currentTarget.contains(e.relatedTarget) && !isSaving) {
-      setIsSaving(true);
-      try {
-        await handleSave(content);
-      } catch (error) {
-        console.error("Error saving resume:", error);
-      } finally {
-        setIsSaving(false);
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      // clear auto-save interval
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+
+      // save content
+      if (!isSaving) {
+        setIsSaving(true);
+        try {
+          await handleSave(content);
+        } catch (error) {
+          console.error("Error saving resume:", error);
+        } finally {
+          setIsSaving(false);
+        }
       }
     }
   }

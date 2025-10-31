@@ -1,4 +1,5 @@
 import base64
+from datetime import datetime
 import os
 import subprocess
 import fastapi
@@ -25,7 +26,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-cached_resume: str = ""
+cached_resume: ResumeData = None
 @app.get("/resume")
 def get_resume():
     global cached_resume
@@ -34,7 +35,7 @@ def get_resume():
 @app.post("/resume")
 def set_resume(resume: ResumeData):
     global cached_resume
-    cached_resume = resume.resume
+    cached_resume = resume
     return {"success": True}
 
 def compile_latex(latex_content: str) -> bytes:

@@ -1,4 +1,5 @@
 import { API_URL } from "@/consts";
+import { ResumeData } from "@/lib/types";
 
 export async function postTextContent(str: string) {
   try {
@@ -7,7 +8,9 @@ export async function postTextContent(str: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ resume: str }),
+      body: JSON.stringify(
+        ResumeData.parse({ resume: str, datetime: Date.now() })
+      ),
     });
     if (!response.ok) {
       throw new Error("Failed to save resume");
@@ -26,7 +29,9 @@ export async function getPDFDownload(str: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ resume: str }),
+      body: JSON.stringify(
+        ResumeData.parse({ resume: str, datetime: Date.now() })
+      ),
     });
     if (!response.ok) {
       throw new Error("Failed to save resume");
@@ -45,10 +50,13 @@ export async function getPDFDisplay(str: string) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ resume: str }),
+      body: JSON.stringify(
+        ResumeData.parse({ resume: str, datetime: Date.now() })
+      ),
     });
     if (!response.ok) {
-      throw new Error("Failed to get resume");
+      console.error("Failed to get resume");
+      return null;
     }
     const data = await response.json();
     return data;
