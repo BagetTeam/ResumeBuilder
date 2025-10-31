@@ -14,9 +14,9 @@ import React, {
 import { postTextContent } from "@/backend/server_posts/post";
 
 interface LatexEditorProps {
-  content: string;
-  onChange: (content: string) => void;
-  onRefresh: Dispatch<SetStateAction<string>>;
+  content: Array<string>;
+  onChange: (content: Array<string>) => void;
+  onRefresh: Dispatch<SetStateAction<Array<string>>>;
 }
 
 export default function LatexEditor({
@@ -35,7 +35,7 @@ export default function LatexEditor({
     };
   }, []);
 
-  async function handleSave(resume: string) {
+  async function handleSave(resume: Array<string>) {
     const data = await postTextContent(resume);
     onRefresh(resume);
   }
