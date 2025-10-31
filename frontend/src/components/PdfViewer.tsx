@@ -18,8 +18,6 @@ import "react-pdf/dist/Page/TextLayer.css";
 //   import.meta.url
 // ).toString();
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
 interface PdfViewerProps {
   pdfUrl: string;
   isLoading: boolean;
@@ -34,6 +32,9 @@ export default function PdfViewer({
   const [zoom, setZoom] = useState(100);
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState<number>(1);
+
+  if (pdfUrl)
+    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);

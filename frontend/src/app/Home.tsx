@@ -26,9 +26,11 @@ export default function Home({ initialPdfResumeContent }: HomeProps) {
       typeof window !== "undefined"
         ? localStorage.getItem("resumeContent")
         : null;
+    console.log("localData", localData);
     if (localData && localData !== "") {
       const resumeData = ResumeData.parse(JSON.parse(localData));
       if (resumeData.datetime > initialPdfResumeContent.datetime) {
+        setResumeContent(resumeData.resume);
         setPdfResumeContent(resumeData.resume);
       }
       // console.log("Loaded local data");
@@ -37,7 +39,9 @@ export default function Home({ initialPdfResumeContent }: HomeProps) {
   }, []);
 
   useEffect(() => {
-    loadPDF();
+    if (pdfResumeContent !== "") {
+      loadPDF();
+    }
   }, [pdfResumeContent]);
 
   useEffect(() => {
