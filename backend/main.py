@@ -92,7 +92,8 @@ def compile_latex(latex_content: str) -> bytes:
 @app.post("/pdf-download")
 def get_pdf_download(resume: ResumeData):
     try:
-        pdf = compile_latex(resume.resume)
+        merged_resume = "\n".join(resume.resume)
+        pdf = compile_latex(merged_resume)
         return fastapi.responses.Response(content=pdf, media_type="application/pdf", headers={"Content-Disposition": "attachment; filename=resume.pdf"})
     except Exception as e:
         import traceback
@@ -102,7 +103,8 @@ def get_pdf_download(resume: ResumeData):
 @app.post("/pdf-display")
 def get_pdf_display(resume: ResumeData):
     try:
-        pdf = compile_latex(resume.resume)
+        merged_resume = "\n".join(resume.resume)
+        pdf = compile_latex(merged_resume)
         pdf_base64 = base64.b64encode(pdf).decode("utf-8")
         print(pdf_base64)
         return {"pdf": pdf_base64}

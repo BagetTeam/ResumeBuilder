@@ -1,7 +1,7 @@
 import { API_URL } from "@/lib/consts";
 import { ResumeData } from "@/lib/types";
 
-export async function postTextContent(str: string) {
+export async function postTextContent(resume: Array<string>) {
   try {
     const response = await fetch(`${API_URL}/resume`, {
       method: "POST",
@@ -9,7 +9,7 @@ export async function postTextContent(str: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(
-        ResumeData.parse({ resume: str, datetime: Date.now() })
+        ResumeData.parse({ resume: resume, datetime: Date.now() })
       ),
     });
     if (!response.ok) {
@@ -22,7 +22,7 @@ export async function postTextContent(str: string) {
   }
 }
 
-export async function getPDFDownload(str: string) {
+export async function getPDFDownload(resume: Array<string>) {
   try {
     const response = await fetch(`${API_URL}/pdf-download`, {
       method: "POST",
@@ -30,7 +30,7 @@ export async function getPDFDownload(str: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(
-        ResumeData.parse({ resume: str, datetime: Date.now() })
+        ResumeData.parse({ resume: resume, datetime: Date.now() })
       ),
     });
     if (!response.ok) {
@@ -43,7 +43,7 @@ export async function getPDFDownload(str: string) {
   }
 }
 
-export async function getPDFDisplay(str: string) {
+export async function getPDFDisplay(resume: Array<string>) {
   try {
     const response = await fetch(`${API_URL}/pdf-display`, {
       method: "POST",
@@ -51,7 +51,7 @@ export async function getPDFDisplay(str: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(
-        ResumeData.parse({ resume: str, datetime: Date.now() })
+        ResumeData.parse({ resume: resume, datetime: Date.now() })
       ),
     });
     if (!response.ok) {
