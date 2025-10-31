@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ResumeData = z.object({
-  resume: z.string(),
+  resume: z.array(z.string()),
   datetime: z.number(),
 });
 

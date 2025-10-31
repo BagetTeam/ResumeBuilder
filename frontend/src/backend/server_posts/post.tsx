@@ -1,4 +1,4 @@
-import { API_URL } from "@/consts";
+import { API_URL } from "@/lib/consts";
 import { ResumeData } from "@/lib/types";
 
 export async function postTextContent(str: string) {

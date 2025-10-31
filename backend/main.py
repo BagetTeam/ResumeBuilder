@@ -30,7 +30,6 @@ cached_resume: ResumeData = None
 @app.get("/resume")
 def get_resume():
     global cached_resume
-    print("-=-=-=-=-=-=- GET /resume -=-=-=-=-=-=-")
     if cached_resume is None:
         raise fastapi.HTTPException(status_code=404, detail="Resume not cached yet")
     return cached_resume

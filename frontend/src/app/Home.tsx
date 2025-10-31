@@ -12,10 +12,10 @@ type HomeProps = {
 };
 
 export default function Home({ initialPdfResumeContent }: HomeProps) {
-  const [resumeContent, setResumeContent] = useState<string>(
+  const [resumeContent, setResumeContent] = useState<Array<string>>(
     initialPdfResumeContent.resume
   );
-  const [pdfResumeContent, setPdfResumeContent] = useState<string>(
+  const [pdfResumeContent, setPdfResumeContent] = useState<Array<string>>(
     initialPdfResumeContent.resume
   );
   const [pdfUrl, setPdfUrl] = useState<string>("");
@@ -39,7 +39,7 @@ export default function Home({ initialPdfResumeContent }: HomeProps) {
   }, []);
 
   useEffect(() => {
-    if (pdfResumeContent !== "") {
+    if (pdfResumeContent && pdfResumeContent.length > 0) {
       loadPDF();
     }
   }, [pdfResumeContent]);

@@ -1,10 +1,10 @@
 import { ResumeData } from "@/lib/types";
 import Home from "./Home";
-import { API_URL } from "@/consts";
+import { API_URL } from "@/lib/consts";
 
 export default async function HomePage() {
   let resumeContent: ResumeData = {
-    resume: "",
+    resume: [],
     datetime: 0,
   };
 
@@ -18,8 +18,9 @@ export default async function HomePage() {
       // throw new Error(`HTTP error! status: ${response.status}`);
       console.error("HTTP error! status:", response.status);
     } else {
-      const data: ResumeData = await response.json();
-      resumeContent = data;
+      const data = await response.json();
+      const validatedData = ResumeData.parse(data);
+      resumeContent = validatedData;
     }
   } catch (error) {
     console.error("Error fetching data:", error);
