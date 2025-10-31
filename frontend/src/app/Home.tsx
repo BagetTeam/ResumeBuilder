@@ -3,27 +3,50 @@ import { getPDFDisplay } from "@/backend/server_posts/post";
 import LatexEditor from "@/components/Editor";
 import Navbar from "@/components/Navbar";
 import PdfViewer from "@/components/PdfViewer";
+import { ResumeData } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type HomeProps = {
-  initialPdfResumeContent: string;
+  initialPdfResumeContent: ResumeData;
 };
 
 export default function Home({ initialPdfResumeContent }: HomeProps) {
-  const [resumeContent, setResumeContent] = useState(initialPdfResumeContent);
-  const [pdfResumeContent, setPdfResumeContent] = useState(
-    initialPdfResumeContent
+  const [resumeContent, setResumeContent] = useState<string>(
+    initialPdfResumeContent.resume
   );
-  const [pdfUrl, setPdfUrl] = useState("");
-  const [pdfLoading, setPdfLoading] = useState(false);
+  const [pdfResumeContent, setPdfResumeContent] = useState<string>(
+    initialPdfResumeContent.resume
+  );
+  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdfLoading, setPdfLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    const localData =
+      typeof window !== "undefined"
+        ? localStorage.getItem("resumeContent")
+        : null;
+    if (localData && localData !== "") {
+      const resumeData = ResumeData.parse(JSON.parse(localData));
+      if (resumeData.datetime > initialPdfResumeContent.datetime) {
+        setPdfResumeContent(resumeData.resume);
+      }
+      // console.log("Loaded local data");
+      return;
+    }
+  }, []);
 
   useEffect(() => {
     loadPDF();
   }, [pdfResumeContent]);
 
   useEffect(() => {
-    localStorage.setItem("resumeContent", resumeContent);
+    localStorage.setItem(
+      "resumeContent",
+      JSON.stringify(
+        ResumeData.parse({ resume: resumeContent, datetime: Date.now() })
+      )
+    );
   }, [resumeContent]);
 
   async function loadPDF() {

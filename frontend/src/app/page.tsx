@@ -2,7 +2,11 @@ import { ResumeData } from "@/lib/types";
 import Home from "./Home";
 
 export default async function HomePage() {
-  let resumeContent = "";
+  let resumeContent: ResumeData = {
+    resume: "",
+    datetime: 0,
+  };
+
   try {
     // fetch from server
     const response = await fetch("http://localhost:8000/resume");
@@ -10,7 +14,7 @@ export default async function HomePage() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data: ResumeData = await response.json();
-    resumeContent = data.resume;
+    resumeContent = data;
   } catch (error) {
     console.error("Error fetching data:", error);
   }
