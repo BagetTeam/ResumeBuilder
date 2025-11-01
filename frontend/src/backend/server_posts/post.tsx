@@ -1,7 +1,7 @@
 import { API_URL } from "@/lib/consts";
 import { ResumeData } from "@/lib/types";
 
-export async function postTextContent(resume: Array<string>) {
+export async function postTextContent(resume: string) {
   try {
     const response = await fetch(`${API_URL}/resume`, {
       method: "POST",
@@ -22,7 +22,7 @@ export async function postTextContent(resume: Array<string>) {
   }
 }
 
-export async function getPDFDownload(resume: Array<string>) {
+export async function getPDFDownload(resume: string) {
   try {
     const response = await fetch(`${API_URL}/pdf-download`, {
       method: "POST",
@@ -43,7 +43,7 @@ export async function getPDFDownload(resume: Array<string>) {
   }
 }
 
-export async function getPDFDisplay(resume: Array<string>) {
+export async function getPDFDisplay(resume: string) {
   try {
     const response = await fetch(`${API_URL}/pdf-display`, {
       method: "POST",

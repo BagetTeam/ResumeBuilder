@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 class ResumeData(BaseModel):
-    resume: list[str]
+    resume: str
     datetime: int

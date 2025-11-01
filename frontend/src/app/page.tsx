@@ -4,7 +4,7 @@ import { API_URL } from "@/lib/consts";
 
 export default async function HomePage() {
   let resumeContent: ResumeData = {
-    resume: [],
+    resume: "",
     datetime: 0,
   };
 

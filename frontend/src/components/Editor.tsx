@@ -14,9 +14,9 @@ import React, {
 import { postTextContent } from "@/backend/server_posts/post";
 
 interface LatexEditorProps {
-  content: Array<string>;
-  onChange: (content: Array<string>) => void;
-  onRefresh: Dispatch<SetStateAction<Array<string>>>;
+  content: string;
+  onChange: (content: string) => void;
+  onRefresh: Dispatch<SetStateAction<string>>;
 }
 
 export default function LatexEditor({
@@ -25,6 +25,7 @@ export default function LatexEditor({
   onRefresh,
 }: LatexEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
+  const [lineEditing, setLineEditing] = useState<number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function LatexEditor({
     };
   }, []);
 
-  async function handleSave(resume: Array<string>) {
+  async function handleSave(resume: string) {
     const data = await postTextContent(resume);
     onRefresh(resume);
   }
@@ -48,7 +49,8 @@ export default function LatexEditor({
 
     intervalRef.current = setInterval(() => {
       handleSave(content);
-    }, 1000);
+      toast.success("Content saved");
+    }, 3000);
   }
 
   async function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
