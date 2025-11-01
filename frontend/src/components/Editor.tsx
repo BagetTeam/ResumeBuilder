@@ -30,6 +30,40 @@ export default function LatexEditor({
 
   const contentRef = useRef<string | undefined>(content);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const monacoRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!monacoRef.current) return;
+    const monaco = monacoRef.current;
+
+    monaco.languages.register({ id: "latex" });
+
+    // Define simple tokenization rules
+    monaco.languages.setMonarchTokensProvider("latex", {
+      tokenizer: {
+        root: [
+          [/%.*$/, "comment"], // comments
+          [/\\[a-zA-Z]+/, "keyword"], // commands like \begin, \section, etc.
+          [/\$[^$]*\$/, "string"], // inline math
+          [/\{[^}]*\}/, "variable"], // curly brace content
+        ],
+      },
+    });
+
+    monaco.editor.defineTheme("custom-dark", {
+      base: "vs-dark",
+      inherit: true,
+      rules: [
+        { token: "keyword", foreground: "C586C0" },
+        { token: "comment", foreground: "6A9955", fontStyle: "italic" },
+        { token: "string", foreground: "CE9178" },
+        { token: "variable", foreground: "9CDCFE" },
+      ],
+      colors: {
+        "editor.background": "#1E1E1E",
+      },
+    });
+  }, [monacoRef.current]);
 
   useEffect(() => {
     return () => {
@@ -86,7 +120,12 @@ export default function LatexEditor({
     }
   }
 
-  function handleMount(editor: editor.IStandaloneCodeEditor, monaco: any) {
+  function handleMount(
+    editor: editor.IStandaloneCodeEditor,
+    monacoInstance: any
+  ) {
+    monacoRef.current = monacoInstance;
+
     editor.onDidFocusEditorText(() => {
       console.log("focus");
       handleFocus();
@@ -176,6 +215,7 @@ export default function LatexEditor({
       <Editor
         height="90vh"
         defaultLanguage="latex"
+        theme="custom-dark"
         value={content ?? ""}
         onChange={(e) => onChange(e)}
         onMount={handleMount}
@@ -195,7 +235,7 @@ export default function LatexEditor({
             alwaysConsumeMouseWheel: false, // allows parent scroll if needed
           },
         }}
-        className="bg-(--editor-bg) text-(--editor-text) whitespace-pre-wrap break-normal"
+        className="whitespace-pre-wrap break-normal"
       />
     </div>
   );
