@@ -13,6 +13,7 @@ import React, {
 } from "react";
 import { postTextContent } from "@/backend/server_posts/post";
 import Editor from "@monaco-editor/react";
+import { editor } from "monaco-editor";
 
 interface LatexEditorProps {
   content: string | undefined;
@@ -26,7 +27,8 @@ export default function LatexEditor({
   onRefresh,
 }: LatexEditorProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const [lineEditing, setLineEditing] = useState<number | null>(null);
+
+  const contentRef = useRef<string | undefined>(content);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -37,46 +39,63 @@ export default function LatexEditor({
     };
   }, []);
 
+  useEffect(() => {
+    contentRef.current = content;
+  }, [content]);
+
   async function handleSave(resume: string) {
     const data = await postTextContent(resume);
     onRefresh(resume);
   }
 
   function handleFocus() {
+    console.log("handle focus");
     // add auto-save interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
 
-    intervalRef.current = setInterval(() => {
-      if (content) {
-        handleSave(content);
+    intervalRef.current = setInterval(async () => {
+      const currentContent = contentRef.current;
+      if (currentContent !== undefined) {
+        await handleSave(currentContent);
         toast.success("Content saved");
       }
-    }, 3000);
+    }, 10000);
   }
 
-  async function handleBlur(e: React.FocusEvent<HTMLTextAreaElement>) {
-    // Moved to outside root div
-    if (!e.currentTarget.contains(e.relatedTarget)) {
-      // clear auto-save interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+  async function handleBlur() {
+    // clear auto-save interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
 
-      // save content
-      if (!isSaving && content) {
-        setIsSaving(true);
-        try {
-          await handleSave(content);
-        } catch (error) {
-          console.error("Error saving resume:", error);
-        } finally {
-          setIsSaving(false);
-        }
+    const currentContent = contentRef.current;
+    // save content
+    if (!isSaving && currentContent !== undefined) {
+      console.log("handle blur");
+      setIsSaving(true);
+      try {
+        await handleSave(currentContent);
+      } catch (error) {
+        console.error("Error saving resume:", error);
+      } finally {
+        setIsSaving(false);
       }
     }
+  }
+
+  function handleMount(editor: editor.IStandaloneCodeEditor, monaco: any) {
+    editor.onDidFocusEditorText(() => {
+      console.log("focus");
+      handleFocus();
+    });
+
+    editor.onDidBlurEditorText(async () => {
+      console.log("blur");
+      await handleBlur();
+    });
   }
 
   function handleUpload() {
@@ -133,7 +152,7 @@ export default function LatexEditor({
         </Button>
         <Button
           onClick={async () => {
-            if (content) {
+            if (content !== undefined) {
               await handleSave(content);
             }
           }}
@@ -146,8 +165,7 @@ export default function LatexEditor({
         </Button>
       </div>
 
-      <div className="flex-1 overflow-auto p-4">
-        {/* <Textarea
+      {/* <Textarea
           value={content}
           onChange={(e) => onChange(e.target.value)}
           className="w-full h-full font-mono text-sm resize-none border-0 focus-visible:ring-0 bg-(--editor-bg) text-(--editor-text) whitespace-pre-wrap break-normal"
@@ -155,19 +173,30 @@ export default function LatexEditor({
           onFocus={handleFocus}
           onBlur={handleBlur}
         /> */}
-        <Editor
-          height="90vh"
-          defaultLanguage="latex"
-          value={content ?? ""}
-          onChange={(e) => onChange(e)}
-          options={{
-            lineNumbers: "on",
-            fontFamily: "monospace",
-            fontSize: 14,
-            minimap: { enabled: false },
-          }}
-        />
-      </div>
+      <Editor
+        height="90vh"
+        defaultLanguage="latex"
+        value={content ?? ""}
+        onChange={(e) => onChange(e)}
+        onMount={handleMount}
+        options={{
+          lineNumbers: "on",
+          fontFamily: "monospace",
+          fontSize: 14,
+          minimap: { enabled: false },
+          wordWrap: "on",
+          wrappingIndent: "same",
+          scrollbar: {
+            vertical: "visible", // 'auto' | 'hidden' | 'visible'
+            horizontal: "visible",
+            useShadows: false, // disable scroll shadows
+            verticalScrollbarSize: 8, // width of scrollbar in px
+            horizontalScrollbarSize: 8,
+            alwaysConsumeMouseWheel: false, // allows parent scroll if needed
+          },
+        }}
+        className="bg-(--editor-bg) text-(--editor-text) whitespace-pre-wrap break-normal"
+      />
     </div>
   );
 }
