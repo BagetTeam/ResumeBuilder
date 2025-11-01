@@ -12,10 +12,11 @@ import React, {
   useState,
 } from "react";
 import { postTextContent } from "@/backend/server_posts/post";
+import Editor from "@monaco-editor/react";
 
 interface LatexEditorProps {
-  content: string;
-  onChange: (content: string) => void;
+  content: string | undefined;
+  onChange: (content: string | undefined) => void;
   onRefresh: Dispatch<SetStateAction<string>>;
 }
 
@@ -48,8 +49,10 @@ export default function LatexEditor({
     }
 
     intervalRef.current = setInterval(() => {
-      handleSave(content);
-      toast.success("Content saved");
+      if (content) {
+        handleSave(content);
+        toast.success("Content saved");
+      }
     }, 3000);
   }
 
@@ -63,7 +66,7 @@ export default function LatexEditor({
       }
 
       // save content
-      if (!isSaving) {
+      if (!isSaving && content) {
         setIsSaving(true);
         try {
           await handleSave(content);
@@ -96,6 +99,7 @@ export default function LatexEditor({
   }
 
   function handleLatexDownload() {
+    if (content === undefined) return;
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -129,7 +133,9 @@ export default function LatexEditor({
         </Button>
         <Button
           onClick={async () => {
-            await handleSave(content);
+            if (content) {
+              await handleSave(content);
+            }
           }}
           variant="outline"
           size="sm"
@@ -141,13 +147,25 @@ export default function LatexEditor({
       </div>
 
       <div className="flex-1 overflow-auto p-4">
-        <Textarea
+        {/* <Textarea
           value={content}
           onChange={(e) => onChange(e.target.value)}
           className="w-full h-full font-mono text-sm resize-none border-0 focus-visible:ring-0 bg-(--editor-bg) text-(--editor-text) whitespace-pre-wrap break-normal"
           placeholder="Enter your LaTeX code here..."
           onFocus={handleFocus}
           onBlur={handleBlur}
+        /> */}
+        <Editor
+          height="90vh"
+          defaultLanguage="latex"
+          value={content ?? ""}
+          onChange={(e) => onChange(e)}
+          options={{
+            lineNumbers: "on",
+            fontFamily: "monospace",
+            fontSize: 14,
+            minimap: { enabled: false },
+          }}
         />
       </div>
     </div>

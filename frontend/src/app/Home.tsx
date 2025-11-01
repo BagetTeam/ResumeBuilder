@@ -12,7 +12,7 @@ type HomeProps = {
 };
 
 export default function Home({ initialPdfResumeContent }: HomeProps) {
-  const [resumeContent, setResumeContent] = useState<string>(
+  const [resumeContent, setResumeContent] = useState<string | undefined>(
     initialPdfResumeContent.resume
   );
   const [pdfResumeContent, setPdfResumeContent] = useState<string>(
